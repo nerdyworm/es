@@ -36,8 +36,8 @@ defmodule Es.Mixfile do
   defp deps do
     [
      {:ex_aws, "~> 1.0"},
-     #{:ex_kcl, github: "nerdyworm/ex_kcl"},
-     {:ex_kcl, path: "/Users/benjamin/code/ex_kcl"},
+     {:ex_kcl, github: "nerdyworm/ex_kcl"},
+     #{:ex_kcl, path: "/Users/benjamin/code/ex_kcl"},
      {:poison, "~> 2.0"},
      {:uuid, "~> 1.1"},
      {:postgrex, ">= 0.0.0"},
