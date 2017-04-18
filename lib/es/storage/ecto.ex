@@ -96,7 +96,7 @@ defmodule ES.Storage.Ecto do
         from e in EventSchema,
          where: e.stream_uuid == ^stream_uuid,
          where: e.stream_version < ^start_version,
-         order_by: [asc: e.id],
+         order_by: [desc: e.id],
          limit: ^limit)
 
     events =
