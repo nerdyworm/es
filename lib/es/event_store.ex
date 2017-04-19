@@ -6,11 +6,10 @@ defmodule ES.EventStore do
       import ES.{EventStore, Util}
       require Logger
 
-      {otp_app, adapter, dispatcher, config} = parse_config(opts)
+      {otp_app, adapter, config} = parse_config(opts)
       @otp_app otp_app
       @adapter adapter
       @config config
-      @dispatcher dispatcher
 
       def start_link do
         @adapter.start_link(__MODULE__)
@@ -192,7 +191,8 @@ defmodule ES.EventStore do
       end
 
       defp notify_streams(events) do
-        @dispatcher.dispatch(__MODULE__, events)
+        streams()
+        |> Enum.each(&(&1.notify(__MODULE__, events)))
       end
 
       def streams() do
@@ -213,12 +213,9 @@ defmodule ES.EventStore do
     end
   end
 
-  alias ES.Dispatcher.{Inline, NOOP}
-
   def parse_config(config) do
     otp_app = config[:otp_app]
     adapter = config[:adapter]
-    dispatcher = if config[:inline], do: Inline, else: NOOP
-    {otp_app, adapter, dispatcher, config}
+    {otp_app, adapter, config}
   end
 end

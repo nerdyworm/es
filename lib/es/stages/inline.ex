@@ -13,6 +13,11 @@ defmodule ES.Stages.Inline do
     {:ok, %__MODULE__{stream: stream, options: options}}
   end
 
+  # this means inline notify cause of the store arg...
+  def notify(stream, _store, events) do
+    notify(stream, events)
+  end
+
   def notify(stream, events) do
     events = List.wrap(events)
     enrichers = stream.enrichers()

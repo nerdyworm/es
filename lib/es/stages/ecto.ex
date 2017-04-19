@@ -17,6 +17,10 @@ defmodule ES.Stages.Ecto do
     Supervisor.start_link(children, strategy: :one_for_one)
   end
 
+  # not an inline adapter, should not notify
+  # from event store
+  def notify(_stream, _store, _events), do: :ok
+
   def notify(stream, events) do
     :ok = GenStage.call(stream, {:notify, events})
   end

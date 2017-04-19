@@ -3,7 +3,7 @@ defmodule ES.Storage.MemoryAdapterTest do
   use ExUnit.Case
 
   defmodule Store do
-    use ES.EventStore, adapter: ES.Storage.Memory, repo: ES.Repo, inline: true
+    use ES.EventStore, adapter: ES.Storage.Memory, repo: ES.Repo
   end
 
   setup_all context do

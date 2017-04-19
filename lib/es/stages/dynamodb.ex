@@ -48,6 +48,10 @@ defmodule ES.Stages.Dynamodb do
     :ok
   end
 
+  # not an inline adapter, should not notify
+  # from event store
+  def notify(_stream, _store, _events), do: :ok
+
   def notify(stream, events) do
     :ok = GenStage.call(stream, {:notify, events})
   end

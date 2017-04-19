@@ -2,7 +2,7 @@ defmodule ES.Storage.EctoAdapterTest do
   use ES.StorageAdapterCase
 
   defmodule Store do
-    use ES.EventStore, adapter: ES.Storage.Ecto, repo: ES.Repo, inline: true
+    use ES.EventStore, adapter: ES.Storage.Ecto, repo: ES.Repo
   end
 
   setup_all context do

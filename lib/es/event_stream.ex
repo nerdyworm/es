@@ -27,6 +27,10 @@ defmodule ES.EventStream do
         @adapter.notify(__MODULE__, event)
       end
 
+      def notify(store, event) do
+        @adapter.notify(__MODULE__, store, event)
+      end
+
       def checkpoint(checkpoint) do
         @adapter.checkpoint(__MODULE__, checkpoint)
       end

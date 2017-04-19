@@ -1,12 +1,12 @@
 defmodule EsNonDbBackedTest do
   use ExUnit.Case
 
-  def consumers() do
-    [Consumer]
-  end
+  defmodule Stream do
+    use ES.EventStream, adapter: ES.Stages.Inline
 
-  def checkpoint(_event) do
-    :ok
+    def consumers() do
+      [Consumer]
+    end
   end
 
   setup do
@@ -15,7 +15,7 @@ defmodule EsNonDbBackedTest do
   end
 
   test "commit and changes" do
-    TestEventStore.add_stream(__MODULE__)
+    TestEventStore.add_stream(Stream)
 
     uuid = UUID.uuid4
     {:ok, aggregate} = Workflow.start(uuid, "workflowsssss")
@@ -49,7 +49,7 @@ defmodule EsNonDbBackedTest do
   end
 
   test "apply and commit" do
-    TestEventStore.add_stream(__MODULE__)
+    TestEventStore.add_stream(Stream)
 
     uuid = UUID.uuid4
     {:ok, aggregate} = Workflow.start(uuid, "workflowsssss")

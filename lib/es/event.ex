@@ -39,7 +39,6 @@ defmodule ES.Event do
 end
 
 defimpl Poison.Decoder, for: ES.Event do
-  alias ES.Event
   alias Poison.Decode
 
   def decode(%{stream_type: stream_type, event_type: event_type, event_data: event_data} = event, _options) do

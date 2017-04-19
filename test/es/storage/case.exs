@@ -4,19 +4,28 @@ defmodule ES.StorageAdapterCase do
   defmodule Handler do
     use ES.EventConsumer
 
-    def consumers() do
-      [__MODULE__]
+    def handle_event(event) do
+      #:timer.sleep(100)
+      #IO.puts "[Consumer] consumer: #{inspect event}"
+      send(:testing, event)
+      :ok
+    end
+
+  end
+
+  defmodule EventStream do
+    def notify(_store, events) do
+      Enum.each(consumers(), fn(handler) ->
+        :erlang.apply(handler, :handle_events, [events, self(), __MODULE__])
+      end)
     end
 
     def checkpoint(_event) do
       :ok
     end
 
-    def handle_event(event) do
-      #:timer.sleep(100)
-      #IO.puts "[Consumer] consumer: #{inspect event}"
-      send(:testing, event)
-      :ok
+    def consumers() do
+      [Handler]
     end
   end
 
@@ -56,8 +65,8 @@ defmodule ES.StorageAdapterCase do
         ])
       end
 
-      test "store with hanlders", %{store: store} do
-        :ok = store.add_stream(Handler)
+      test "store with streams to notify", %{store: store} do
+        :ok = store.add_stream(EventStream)
 
         stream_uuid = ES.uuid
         event = %BankAccount.Opened{uuid: stream_uuid, name: "bank account"}
