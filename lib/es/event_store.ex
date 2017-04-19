@@ -26,8 +26,12 @@ defmodule ES.EventStore do
         @adapter.setup(__MODULE__, options)
       end
 
-      def append_to_stream(aggregate, events) do
-        commit = ES.Commit.build(aggregate, aggregate.version, events)
+      def append_to_stream(%{version: version} = aggregate, events) do
+        append_to_stream(aggregate, events, version)
+      end
+
+      def append_to_stream(aggregate, events, expected_version) do
+        commit = ES.Commit.build(aggregate, expected_version, events)
         case @adapter.commit(__MODULE__, commit) do
           {:error, reason} ->
             {:error, reason}
