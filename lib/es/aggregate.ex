@@ -51,6 +51,22 @@ defmodule ES.Aggregate do
         end)
       end
 
+      def apply_event(%{pending: pending, __struct__: stream_type} = aggregate, event) do
+        data_changeset = event |> event.__struct__.changeset
+        if data_changeset.valid? do
+          event = apply_changes(data_changeset)
+
+          aggregate =
+            event
+            |> stream_type.handle_event(aggregate)
+            |> append_change(pending: pending ++ [event])
+
+          {:ok, aggregate}
+        else
+          {:error, data_changeset}
+        end
+      end
+
       def apply(%{pending: pending, __struct__: stream_type} = aggregate, event) do
         data_changeset = event |> event.__struct__.changeset
         if data_changeset.valid? do

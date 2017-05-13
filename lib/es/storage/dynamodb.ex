@@ -82,6 +82,10 @@ defmodule ES.Storage.Dynamodb do
     end
   end
 
+  def read_all_stream_forward(_store, _start, _limit) do
+    {:error, :not_supported}
+  end
+
   def read_stream_forward(store, stream_uuid, start_version, limit) when is_binary(start_version) do
     [_, stream_version, _] =
       String.split(start_version, ".")

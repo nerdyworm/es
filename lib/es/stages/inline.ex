@@ -5,6 +5,8 @@ defmodule ES.Stages.Inline do
 
   defstruct [:stream, :options]
 
+  def setup(_,_), do: :ok
+
   def start_link(stream, options) do
     GenServer.start_link(__MODULE__, {stream, options}, name: stream)
   end
