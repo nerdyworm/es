@@ -6,7 +6,7 @@ defmodule ES.EventStore do
       import ES.{EventStore, Util}
       require Logger
 
-      {otp_app, adapter, config} = parse_config(opts)
+      {otp_app, adapter, config} = parse_config(__MODULE__, opts)
       @otp_app otp_app
       @adapter adapter
       @config config
@@ -213,9 +213,20 @@ defmodule ES.EventStore do
     end
   end
 
-  def parse_config(config) do
-    otp_app = config[:otp_app]
-    adapter = config[:adapter]
+  def parse_config(store, options) do
+    otp_app = options[:otp_app]
+    config = Application.get_env(otp_app, store, [])
+    defaults = []
+    config = Keyword.merge(defaults, config)
+    config = Keyword.merge(config, options)
+    adapter = options[:adapter] || config[:adapter]
+
+    unless adapter do
+      raise ArgumentError, "missing :adapter configuration in " <>
+      "config #{inspect otp_app}, #{inspect adapter}"
+    end
+
+
     {otp_app, adapter, config}
   end
 end
