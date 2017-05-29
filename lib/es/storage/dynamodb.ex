@@ -39,9 +39,16 @@ defmodule ES.Storage.Dynamodb do
         nil
 
       {:ok, events} ->
-        sequence = sequence |> String.to_integer
-        Enum.find(events, &(&1.event_sequence == sequence))
+        find_event_by_sequence(events, sequence)
+
+      {:ok, events, _} ->
+        find_event_by_sequence(events, sequence)
     end
+  end
+
+  defp find_event_by_sequence(events, sequence) do
+    sequence = sequence |> String.to_integer
+    Enum.find(events, &(&1.event_sequence == sequence))
   end
 
   def commit(store, commit, attempts \\ 0) do
