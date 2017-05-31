@@ -89,10 +89,6 @@ defmodule ES.Storage.Dynamodb do
     end
   end
 
-  def read_all_stream_forward(_store, _start, _limit) do
-    {:error, :not_supported}
-  end
-
   def read_stream_forward(store, stream_uuid, start_version, limit) when is_binary(start_version) do
     [_, stream_version, _] =
       String.split(start_version, ".")
@@ -176,6 +172,72 @@ defmodule ES.Storage.Dynamodb do
         Logger.error "[read] [ProvisionedThroughputExceededException] stream_uuid=#{stream_uuid} attempts=#{attempts}"
         :ok = enforce_limit!(store, %{stream_uuid: stream_uuid}, attempts)
         read_events(store, stream_uuid, query, attempts + 1)
+    end
+  end
+
+  def read_all_stream_forward(store, limit) do
+    table = store.config(:table)
+
+    results =
+      ExAws.Dynamo.scan(table,
+       limit: limit,
+       return_consumed_capacity: "TOTAL")
+      |> ExAws.request()
+
+    case results do
+      {:ok, results} ->
+        handle_scan_results(results)
+    end
+  end
+
+  def read_all_stream_forward(store, last, limit) do
+    table = store.config(:table)
+    results =
+      ExAws.Dynamo.scan(table,
+       limit: limit,
+       exclusive_start_key: last,
+       return_consumed_capacity: "TOTAL")
+      |> ExAws.request()
+
+    case results do
+      {:ok, results} ->
+        handle_scan_results(results)
+
+       {:error, {"ProvisionedThroughputExceededException", message}} ->
+        Logger.error "[all stream] [ProvisionedThroughputExceededException] sleep=5000"
+        :timer.sleep(5000)
+        read_all_stream_forward(store, last, limit)
+
+    end
+  end
+
+  defp handle_scan_results(results) do
+    count = results["Count"]
+    last_key = results["LastEvaluatedKey"]
+    consumed = results["ConsumedCapacity"]["CapacityUnits"]
+    Logger.info "scan consumed=#{consumed} count=#{count}"
+    IO.puts "scan consumed=#{consumed} count=#{count}"
+
+    events =
+      Enum.map(results["Items"], fn(item) ->
+        try do
+          Dynamo.Decoder.decode(item, as: Commit)
+          |> unpack()
+        rescue
+          e ->
+            #Logger.warn "Could not parse item=#{inspect item}"
+            nil
+        end
+      end)
+      |> Enum.filter(&(&1 != nil))
+      |> List.flatten
+
+    case last_key do
+      nil ->
+        {:ok, events}
+
+      key ->
+        {:ok, events, last_key}
     end
   end
 

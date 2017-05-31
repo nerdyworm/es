@@ -25,7 +25,7 @@ defmodule ES.Storage do
   end
 
   def unpack(%{sequence: sequence, data: event_data, type: event_type}, commit) do
-    event_type = event_type |> String.to_existing_atom
+    event_type = event_type |> String.to_atom
     %Event{
       event_id: "#{commit.stream_uuid}.#{commit.stream_version}.#{sequence}",
       event_data: Encoder.decode(event_data, as: event_type),
@@ -33,7 +33,7 @@ defmodule ES.Storage do
       event_sequence: sequence,
       stream_uuid: commit.stream_uuid,
       stream_version: commit.stream_version,
-      stream_type: commit.stream_type |> String.to_existing_atom,
+      stream_type: commit.stream_type |> String.to_atom,
       timestamp: commit.timestamp,
     }
   end

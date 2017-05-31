@@ -21,6 +21,14 @@ defmodule ES.EventStore do
       def adapter(), do: @adapter
       def repo(),    do: @config[:repo]
 
+      def all(limit) do
+        @adapter.read_all_stream_forward(__MODULE__, limit)
+      end
+
+      def all(last, limit) do
+        @adapter.read_all_stream_forward(__MODULE__, last, limit)
+      end
+
       def setup(options \\ []) do
         @adapter.setup(__MODULE__, options)
       end

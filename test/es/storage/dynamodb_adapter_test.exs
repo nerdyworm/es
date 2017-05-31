@@ -22,5 +22,38 @@ defmodule ES.Storage.DynamodbAdapterTest do
     Process.register(self(), :testing)
     {:ok, store: Store}
   end
+
+  @limit 500
+  def stream(store)  do
+    store.all(@limit)
+    |> handle_response(store)
+  end
+
+  def stream(store, last) do
+    last
+    |> store.all(@limit)
+    |> handle_response(store)
+  end
+
+  defp handle_response({:ok, events}, _store) do
+    process_events(events)
+  end
+
+  defp handle_response({:ok, events, last}, store) do
+    process_events(events)
+    stream(store, last)
+  end
+
+  def process_events(events) do
+    Enum.each(events, fn(event) ->
+      IO.inspect event
+    end)
+    IO.puts "consumed: #{length(events)}"
+  end
+
+  @tag timeout: 20 * 60 * 1000
+  test "forward", %{store: store} do
+    stream(store)
+  end
 end
 
