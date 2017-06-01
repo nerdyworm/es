@@ -234,7 +234,7 @@ defmodule ES.Storage.Dynamodb do
       nil ->
         {:ok, events}
 
-      key ->
+      last_key ->
         {:ok, events, last_key}
     end
   end
