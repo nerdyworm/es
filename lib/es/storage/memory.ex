@@ -21,6 +21,10 @@ defmodule ES.Storage.Memory do
     GenServer.call(store, {:read_stream_backward, stream_uuid, start, limit})
   end
 
+  def read_all_stream_forward(_store, _limit) do
+    {:ok, []}
+  end
+
   def read_all_stream_forward(_store, _last_id, _limit) do
     {:ok, []}
   end

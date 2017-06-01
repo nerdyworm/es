@@ -23,37 +23,14 @@ defmodule ES.Storage.DynamodbAdapterTest do
     {:ok, store: Store}
   end
 
-  @limit 500
-  def stream(store)  do
-    store.all(@limit)
-    |> handle_response(store)
-  end
+  test "can but used in the event store stream", %{store: store} do
+    results =
+      store
+      |> ES.EventStoreStream.new(1)
+      |> Stream.take(5)
+      |> Enum.to_list()
 
-  def stream(store, last) do
-    last
-    |> store.all(@limit)
-    |> handle_response(store)
-  end
-
-  defp handle_response({:ok, events}, _store) do
-    process_events(events)
-  end
-
-  defp handle_response({:ok, events, last}, store) do
-    process_events(events)
-    stream(store, last)
-  end
-
-  def process_events(events) do
-    Enum.each(events, fn(event) ->
-      IO.inspect event
-    end)
-    IO.puts "consumed: #{length(events)}"
-  end
-
-  @tag timeout: 20 * 60 * 1000
-  test "forward", %{store: store} do
-    stream(store)
+    assert length(results) == 5
   end
 end
 

@@ -176,12 +176,10 @@ defmodule ES.Storage.Dynamodb do
   end
 
   def read_all_stream_forward(store, limit) do
-    table = store.config(:table)
-
     results =
-      ExAws.Dynamo.scan(table,
-       limit: limit,
-       return_consumed_capacity: "TOTAL")
+      :table
+      |> store.config()
+      |> ExAws.Dynamo.scan(limit: limit, return_consumed_capacity: "TOTAL")
       |> ExAws.request()
 
     case results do
@@ -191,12 +189,13 @@ defmodule ES.Storage.Dynamodb do
   end
 
   def read_all_stream_forward(store, last, limit) do
-    table = store.config(:table)
     results =
-      ExAws.Dynamo.scan(table,
-       limit: limit,
-       exclusive_start_key: last,
-       return_consumed_capacity: "TOTAL")
+      :table
+      |> store.config()
+      |> ExAws.Dynamo.scan(
+        limit: limit,
+        exclusive_start_key: last,
+        return_consumed_capacity: "TOTAL")
       |> ExAws.request()
 
     case results do
@@ -204,7 +203,7 @@ defmodule ES.Storage.Dynamodb do
         handle_scan_results(results)
 
        {:error, {"ProvisionedThroughputExceededException", message}} ->
-        Logger.error "[all stream] [ProvisionedThroughputExceededException] sleep=5000"
+        Logger.error "[all stream] [ProvisionedThroughputExceededException] sleep=5000 message=#{message}"
         :timer.sleep(5000)
         read_all_stream_forward(store, last, limit)
 
@@ -215,8 +214,7 @@ defmodule ES.Storage.Dynamodb do
     count = results["Count"]
     last_key = results["LastEvaluatedKey"]
     consumed = results["ConsumedCapacity"]["CapacityUnits"]
-    Logger.info "scan consumed=#{consumed} count=#{count}"
-    IO.puts "scan consumed=#{consumed} count=#{count}"
+    Logger.info "[all stream] consumed=#{consumed} count=#{count}"
 
     events =
       Enum.map(results["Items"], fn(item) ->
@@ -225,7 +223,7 @@ defmodule ES.Storage.Dynamodb do
           |> unpack()
         rescue
           e ->
-            #Logger.warn "Could not parse item=#{inspect item}"
+            Logger.error "#{Exception.format(:error, e)}\nitem=#{inspect item}"
             nil
         end
       end)

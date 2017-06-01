@@ -10,4 +10,3 @@ config :es, ES.Repo,[
   hostname: "localhost",
   #pool: Ecto.Adapters.SQL.Sandbox
 ]
-
