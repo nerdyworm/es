@@ -18,8 +18,12 @@ defmodule ES.Aggregate do
         "#{module}-#{id}"
       end
 
-      def stream_uuid(aggregate) do
-        aggregate.id
+      def stream_uuid(%{uuid: uuid}) do
+        uuid
+      end
+
+      def stream_uuid(%{id: id}) do
+        id
       end
 
       def stream_type(%{__struct__: module}) do
@@ -87,7 +91,7 @@ defmodule ES.Aggregate do
         aggregate
       end
 
-      defoverridable [preload: 1]
+      defoverridable [preload: 1, stream_uuid: 1]
     end
   end
 

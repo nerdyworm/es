@@ -61,6 +61,7 @@ defmodule ES.Stages.Ecto.Lease do
     |> validate_required([:owner, :name, :counter, :checkpoint, :status])
   end
 
+  # TODO - need to actually wire up streams for ecto
   defp repo do
     ES.Repo
   end
