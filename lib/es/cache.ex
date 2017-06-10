@@ -6,7 +6,7 @@ defmodule ES.Cache do
     defstruct store: nil, cache: nil
   end
 
-  def start_link() do
+  def start_link do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
@@ -16,12 +16,13 @@ defmodule ES.Cache do
     {:ok, %State{cache: cache}}
   end
 
-  def handle_info(:gc, state) do
+  def handle_info(:gc, %State{cache: cache} = state) do
     match_spec = [
       {{:"$1", :"$2", :"$3"}, [{:<, :"$3", ES.timestamp}], [:"$1"]}
     ]
 
-    :ets.select(state.cache, match_spec)
+    cache
+    |> :ets.select(match_spec)
     |> Enum.each(fn(stream_uuid) ->
       true = :ets.delete(state.cache, stream_uuid)
       Logger.debug fn -> "[cache] expiring #{stream_uuid}" end
@@ -56,7 +57,7 @@ defmodule ES.Cache do
     {:reply, :ok, state}
   end
 
-  def ttl() do
+  def ttl do
     ES.timestamp + Application.get_env(:es, :cache_ttl, 60 * 5)
   end
 end

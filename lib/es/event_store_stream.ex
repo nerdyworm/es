@@ -35,4 +35,3 @@ defmodule ES.EventStoreStream do
     last
   end
 end
-

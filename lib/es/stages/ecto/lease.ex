@@ -19,45 +19,49 @@ defmodule ES.Stages.Ecto.Lease do
         where: l.name == ^name,
         limit: 1
 
-    case ES.Repo.one(query) do
+    case repo().one(query) do
       nil ->
         %Lease{owner: owner, name: name, checkpoint: -1, counter: 0}
-        |> ES.Repo.insert
+        |> repo().insert
 
       lease ->
         lease
         |> Lease.changeset(%{owner: owner})
-        |> ES.Repo.update
+        |> repo().update
     end
   end
 
   def checkpoint(lease, last_id) do
     lease
     |> Lease.changeset(%{checkpoint: last_id})
-    |> ES.Repo.update
+    |> repo().update
   end
 
   def ack(lease, last_id) do
     lease
     |> Lease.changeset(%{checkpoint: last_id})
-    |> ES.Repo.update
+    |> repo().update
   end
 
   def resume(lease) do
     lease
     |> Lease.changeset(%{status: "ok"})
-    |> ES.Repo.update
+    |> repo().update
   end
 
   def pause(lease, last_id) do
     lease
     |> Lease.changeset(%{checkpoint: last_id, status: "paused"})
-    |> ES.Repo.update
+    |> repo().update
   end
 
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:owner, :name, :counter, :checkpoint, :status])
     |> validate_required([:owner, :name, :counter, :checkpoint, :status])
+  end
+
+  defp repo do
+    ES.Repo
   end
 end

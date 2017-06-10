@@ -114,7 +114,7 @@ defmodule ES.StorageAdapterCase do
 
         assert {:ok, [^deposited, ^opened]} = store.read_stream_backward(stream_uuid, 3, 2)
 
-        assert gotten = store.get(BankAccount, stream_uuid)
+        gotten = store.get(BankAccount, stream_uuid)
         assert gotten.id == stream_uuid
       end
 
