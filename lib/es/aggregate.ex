@@ -14,15 +14,15 @@ defmodule ES.Aggregate do
         %{aggregate | id: stream_uuid}
       end
 
-      def stream_uuid(%{id: id, __struct__: module}) when is_integer(id) do
-        "#{module}-#{id}"
-      end
-
       def stream_uuid(%{uuid: uuid}) do
         uuid
       end
 
-      def stream_uuid(%{id: id}) do
+      def stream_uuid(%{id: id, __struct__: module}) when is_integer(id) do
+        "#{module}-#{id}"
+      end
+
+      def stream_uuid(%{id: id}) when is_binary(id) do
         id
       end
 
