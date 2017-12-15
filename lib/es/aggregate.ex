@@ -105,7 +105,8 @@ defmodule ES.Aggregate do
   end
 
   def append_change(aggregate, params) do
-    Ecto.Changeset.change(aggregate)
+    aggregate
+    |> Ecto.Changeset.change()
     |> append_change(params)
   end
 end

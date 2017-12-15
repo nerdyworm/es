@@ -43,7 +43,8 @@ defmodule ES.Commit do
       timestamp:      ES.timestamp,
     }
 
-    List.wrap(events)
+    events
+    |> List.wrap()
     |> Enum.reduce(new_commit, fn(event, %Commit{count: count, events: events} = record) ->
       next_count = count + 1
       new_event = EventRecord.new(next_count, event)

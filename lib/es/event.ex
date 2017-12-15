@@ -44,8 +44,8 @@ defimpl Poison.Decoder, for: ES.Event do
   def decode(%{stream_type: stream_type, event_type: event_type, event_data: event_data} = event, _options) do
     event_type = event_type |> String.to_existing_atom
     %{event |
-     stream_type: stream_type |> String.to_existing_atom,
-     event_type: event_type,
-     event_data: Decode.decode(event_data, as: struct(event_type))}
+      stream_type: stream_type |> String.to_existing_atom,
+      event_type: event_type,
+      event_data: Decode.decode(event_data, as: struct(event_type))}
   end
 end
